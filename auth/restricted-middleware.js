@@ -1,15 +1,17 @@
 const bcrypt = require('bcryptjs');
+const jwtVerify = require ('jsonwebtoken');
 
 const Users = require('../users/users-model.js');
 
 module.exports = (req, res, next) => {
-  const { username, password } = req.headers;
+  const { username,authorization } = req.headers;
+  const verifiedToken= jwtVerify.verify(authorization, "is it a secret and is it safe")
 
-  if (username && password) {
+  if (authorization && verifiedToken) {
     Users.findBy({ username })
       .first()
       .then(user => {
-        if (user && bcrypt.compareSync(password, user.password)) {
+        if (user) {
           next();
         } else {
           res.status(401).json({ message: 'Invalid Credentials' });
